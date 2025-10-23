@@ -1,53 +1,52 @@
-let currentPage = 1;
-const totalPages = 4;
+// Call this when user submits email on last intro screen
+async function submitEnroll() {
+  const emailEl = document.getElementById('email');
+  const email = emailEl.value && emailEl.value.trim();
+  const statusEl = document.getElementById('status');
 
-document.querySelectorAll('.scroll-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const next = parseInt(btn.dataset.next);
-    scrollToPage(next);
-  });
-});
-
-function scrollToPage(page) {
-  if (page > totalPages) return;
-  document.querySelector('#intro').style.transform = `translateY(-${(page - 1) * 100}vh)`;
-  currentPage = page;
-}
-
-// Initialize Supabase
-const SUPABASE_URL = "https://fbeulrndsfmeryazfgqg.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZiZXVscm5kc2ZtZXJ5YXpmZ3FnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNTUxNjYsImV4cCI6MjA3NjczMTE2Nn0.ztQ7znArdJTbvJ32eHdnmKpmEi7zea2S1cVch-Nd3Ng";
-
-const { createClient } = supabase;
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// Handle form submission
-document.getElementById('enroll-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('email').value.trim();
-  const status = document.getElementById('status');
+  // Obtain Telegram WebApp user if available
+  const tg = window.Telegram && window.Telegram.WebApp;
+  const user = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || null;
 
   if (!email) {
-    status.textContent = "❌ Please enter your email.";
+    statusEl.textContent = "Please enter a valid email.";
     return;
   }
 
-  status.textContent = "⏳ Submitting...";
+  statusEl.textContent = "Submitting…";
+
+  const payload = {
+    email,
+    // include both fields to be safe
+    telegramId: user?.id ?? null,
+    telegram_id: user?.id ?? null,
+    username: user?.username ?? null,
+    first_name: user?.first_name ?? null,
+    last_name: user?.last_name ?? null
+  };
 
   try {
-    const { error } = await supabaseClient
-      .from('pre_enrollments')
-      .insert([{ email }]);
+    const res = await fetch('https://tusdt-worker.macrotiser-pk.workers.dev/enroll', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
 
-    if (error) throw error;
-    status.textContent = "✅ Thank you! You’re pre-enrolled.";
-    document.getElementById('email').value = "";
-  } catch (err) {
-    console.error(err);
-    if (err.message.includes('duplicate')) {
-      status.textContent = "⚠️ This email is already registered.";
-    } else {
-      status.textContent = "❌ Something went wrong. Try again later.";
+    const json = await res.json();
+
+    if (!res.ok || !json.success) {
+      console.error('Enroll failed:', json);
+      statusEl.textContent = json.error ? `${json.error}` : 'Something went wrong. Try again.';
+      if (json.detail) statusEl.textContent += ` (${json.detail})`;
+      return;
     }
+
+    // Success
+    statusEl.textContent = "✅ You're pre-enrolled!";
+    // optionally show user details
+    console.log('Enrolled user:', json.user ?? json);
+  } catch (err) {
+    console.error('Network error:', err);
+    statusEl.textContent = 'Network error — try again.';
   }
-});
+}
