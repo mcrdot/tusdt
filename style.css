@@ -53,20 +53,21 @@ body {
 /* === 📱 Layout === */
 #intro {
   /* width: 100%; */
-  max-width: 420px;
+  max-width: 450px;
   overflow-x: hidden;
   scroll-behavior: smooth;
 }
 
 /* Each Page Section */
 .page {
-  min-height: 97vh;
+  min-height: 100vh;
+  /* height: 95%; */
   padding: 2rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 2.5rem;
 
   /* Glassmorphism effect */
   background: rgba(255, 255, 255, 0.08);
