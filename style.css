@@ -9,6 +9,29 @@
   font-family: 'Outfit', sans-serif;
 }
 
+
+/* Particle canvas behind everything */
+#bg-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Use your theme colors for glow */
+:root {
+  --usdt-green: #26a17b;
+  --glow-gold: #f9d85e;
+  --neon-teal: #00ffe0;
+}
+
+/* ... (existing styles) ... */
+
+
+
 /* === 🌌 Global Background Animation === */
 body {
   background: linear-gradient(-45deg, #0e0e0e, #1a1a1a, #26a17b, #f9d85e);
@@ -150,3 +173,5 @@ html {
   h1, h2 { font-size: 1.6rem; }
   p { font-size: 0.95rem; }
 }
+
+

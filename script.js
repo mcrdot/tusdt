@@ -32,6 +32,63 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+
+
+// Particle background logic
+(function() {
+  const canvas = document.getElementById('bg-particles');
+  const ctx = canvas.getContext('2d');
+  let width, height;
+  
+  function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const particles = [];
+  const colors = [getComputedStyle(document.documentElement).getPropertyValue('--usdt-green').trim(),
+                  getComputedStyle(document.documentElement).getPropertyValue('--glow-gold').trim(),
+                  getComputedStyle(document.documentElement).getPropertyValue('--neon-teal').trim()];
+
+  function createParticle() {
+    return {
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      size: Math.random() * 3 + 1,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: Math.random() * 0.5 + 0.2
+    };
+  }
+
+  for (let i = 0; i < 80; i++) {
+    particles.push(createParticle());
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0 || p.x > width) p.vx *= -1;
+      if (p.y < 0 || p.y > height) p.vy *= -1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.alpha;
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+
+
 // 💾 Submit email + Telegram data to Worker
 async function submitEnroll() {
   const emailEl = document.getElementById('email');
