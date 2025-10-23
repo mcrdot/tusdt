@@ -81,69 +81,13 @@
     <p>Or tap the link above on your phone!</p>
   </div>
 
-  <!-- Telegram WebApp script -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <script>
-    // Detect if inside Telegram
-    const isInTelegram = typeof window.Telegram !== 'undefined' && window.Telegram.WebApp;
-
-    if (isInTelegram) {
-      // Show main content
-      document.getElementById('intro').classList.remove('hidden');
-      const tg = window.Telegram.WebApp;
-      tg.expand(); // Use full height
-      tg.ready();   // Signal readiness
-
-      // Handle form submission
-      document.getElementById('enroll-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value.trim();
-        const statusEl = document.getElementById('status');
-        statusEl.textContent = 'Registering...';
-        statusEl.style.color = '#37aee2';
-
-        try {
-          // Send to your Cloudflare Worker
-          const response = await fetch('https://tusdt-worker.macrotiser-pk.workers.dev/auth', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ...tg.initDataUnsafe.user, // telegram_id, username, first_name, etc.
-              email: email
-            })
-          });
-
-          const result = await response.json();
-          if (result.success) {
-            statusEl.textContent = '✅ Success! You’re pre-registered. Early access coming soon!';
-            statusEl.style.color = 'green';
-            // Optional: disable form
-            document.getElementById('enroll-form').querySelector('button').disabled = true;
-          } else {
-            statusEl.textContent = '⚠️ ' + (result.error || 'Something went wrong.');
-            statusEl.style.color = 'orange';
-          }
-        } catch (err) {
-          statusEl.textContent = '❌ Network error. Please try again.';
-          statusEl.style.color = 'red';
-        }
-      });
-
-      // Simple page navigation (you can enhance later)
-      document.querySelectorAll('.scroll-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const next = btn.dataset.next;
-          document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-          document.getElementById(`page${next}`).classList.remove('hidden');
-        });
-      });
-
-    } else {
-      // Not in Telegram → show bot prompt
-      document.getElementById('outside-telegram').style.display = 'block';
-      document.body.style.backgroundColor = '#ffffff';
-    }
-  </script>
+ <!-- At the bottom of <body>, before closing tag -->
+<script src="particles.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+  // Keep only the Telegram + form logic here (no particles)
+  const isInTelegram = typeof window.Telegram !== 'undefined' && window.Telegram.WebApp;
+  // ... (rest of your Telegram logic as before)
+</script>
 </body>
 </html>
