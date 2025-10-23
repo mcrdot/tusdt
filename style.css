@@ -60,7 +60,7 @@ body {
 
 /* Each Page Section */
 .page {
-  min-height: 100vh;
+  min-height: 97vh;
   padding: 2rem;
   text-align: center;
   display: flex;
