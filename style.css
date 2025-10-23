@@ -1,86 +1,152 @@
+/* style.css — Total USDT 💲 — glassy gradient animated theme */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
+
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Outfit', sans-serif;
 }
 
+/* === 🌌 Global Background Animation === */
 body {
-  background: linear-gradient(135deg, #1825d9, #6618d9);
-  color: #fff;
-  overflow: hidden;
+  background: linear-gradient(-45deg, #0e0e0e, #1a1a1a, #26a17b, #f9d85e);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+  color: #f1f1f1;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* === 📱 Layout === */
+#intro {
+  width: 100%;
+  max-width: 420px;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Each Page Section */
 .page {
-  width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  text-align: center;
-  transition: transform 0.8s ease-in-out;
-  padding: 20px;
+  gap: 1.5rem;
+
+  /* Glassmorphism effect */
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(16px);
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  margin: 1rem;
 }
 
+/* Titles */
 h1, h2 {
-  margin-bottom: 20px;
+  color: #fff;
+  text-shadow: 0 0 8px #00ffe0;
 }
 
 p {
-  max-width: 300px;
-  line-height: 1.5;
-  font-size: 16px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #e0e0e0;
 }
 
+/* Cards on How It Works */
 .cards {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin: 20px 0;
+  display: grid;
+  gap: 1rem;
 }
 
 .card {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 16px;
-  padding: 15px;
-  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  padding: 1rem;
+  transition: transform 0.3s ease, background 0.3s ease;
 }
 
-button {
-  background: #00f28f;
+.card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* === Buttons === */
+.scroll-btn,
+button[type="submit"] {
+  background: linear-gradient(135deg, #26a17b, #f9d85e);
   color: #000;
   border: none;
-  padding: 10px 25px;
-  border-radius: 25px;
+  padding: 0.9rem 1.6rem;
+  border-radius: 30px;
   font-weight: 600;
-  margin-top: 20px;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s;
+  box-shadow: 0 0 15px rgba(249, 216, 94, 0.5);
+  transition: all 0.3s ease;
 }
 
-button:hover {
-  background: #98f0e0;
+.scroll-btn:hover,
+button[type="submit"]:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(249, 216, 94, 0.8);
 }
 
+/* === Form === */
 form {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 0.8rem;
 }
 
-input {
-  padding: 10px 15px;
-  border-radius: 8px;
+input[type="email"] {
+  padding: 0.8rem 1rem;
+  width: 80%;
+  max-width: 300px;
+  border-radius: 25px;
   border: none;
   outline: none;
-  margin: 10px 0;
-  width: 80%;
+  text-align: center;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  backdrop-filter: blur(8px);
 }
 
+input::placeholder {
+  color: #ddd;
+}
+
+/* Status text */
 #status {
-  font-size: 14px;
-  margin-top: 10px;
-  color: #98f0e0;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #00ffe0;
+  text-shadow: 0 0 6px rgba(0, 255, 224, 0.4);
+}
+
+/* === Smooth scroll transition === */
+html {
+  scroll-behavior: smooth;
+}
+
+/* === Responsive === */
+@media (max-width: 480px) {
+  h1, h2 { font-size: 1.6rem; }
+  p { font-size: 0.95rem; }
 }
