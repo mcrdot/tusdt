@@ -52,7 +52,7 @@ body {
 
 /* === 📱 Layout === */
 #intro {
-  width: 100%;
+  /* width: 100%; */
   max-width: 420px;
   overflow-x: hidden;
   scroll-behavior: smooth;
