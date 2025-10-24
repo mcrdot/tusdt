@@ -19,8 +19,7 @@
       padding: 2rem;
       text-align: center;
       min-height: 100vh;
-      /* markdown error QWEN :( */
-      /* display: flex; */        
+      display: flex;
       flex-direction: column;
       justify-content: center;
     }
@@ -110,65 +109,66 @@
   </div>
 
   <script>
-    // Simple page navigation
+    // Page navigation
     function goTo(pageNum) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(`page${pageNum}`).classList.add('active');
     }
 
-    // Close popup
     function closePopup() {
       document.getElementById('popup').style.display = 'none';
     }
 
-    // Handle form submission
-    document.getElementById('enroll-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value.trim();
+    // Telegram + Worker integration
+    document.addEventListener('DOMContentLoaded', () => {
       const tg = window.Telegram?.WebApp;
-
-      if (!tg || !tg.initDataUnsafe?.user) {
-        alert('Please open this app inside Telegram.');
-        return;
+      if (tg) {
+        tg.expand();
+        tg.ready();
       }
 
-      const user = tg.initDataUnsafe.user;
-      const username = user.username ? `@${user.username}` : user.first_name || 'friend';
+      document.getElementById('enroll-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value.trim();
 
-      try {
-        const res = await fetch('https://tusdt-worker.macrotiser-pk.workers.dev/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            telegram_id: user.id,
-            username: user.username,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            email: email
-          })
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-          const msg = data.existing 
-            ? `✅ ${username}, you're already enrolled! You'll get updates on Telegram + email soon.`
-            : `✅ ${username}, you're enrolled! You'll get a Telegram message + email soon.`;
-          
-          document.getElementById('popup-message').textContent = msg;
-          document.getElementById('popup').style.display = 'flex';
-        } else {
-          alert('⚠️ ' + (data.error || 'Something went wrong.'));
+        if (!tg || !tg.initDataUnsafe?.user) {
+          alert('Please open this app inside Telegram.');
+          return;
         }
-      } catch (err) {
-        alert('❌ Network error. Please try again.');
-      }
-    });
 
-    // Expand Telegram WebApp
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.expand();
-    }
+        const user = tg.initDataUnsafe.user;
+        const username = user.username ? `@${user.username}` : user.first_name || 'friend';
+
+        try {
+          const response = await fetch('https://tusdt-worker.macrotiser-pk.workers.dev/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              telegram_id: user.id,
+              username: user.username,
+              first_name: user.first_name,
+              last_name: user.last_name,
+              email: email
+            })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            const msg = data.existing 
+              ? `✅ ${username}, you're already enrolled! You'll get updates on Telegram + email soon.`
+              : `✅ ${username}, you're enrolled! You'll get a Telegram message + email soon.`;
+            
+            document.getElementById('popup-message').textContent = msg;
+            document.getElementById('popup').style.display = 'flex';
+          } else {
+            alert('⚠️ ' + (data.error || 'Something went wrong.'));
+          }
+        } catch (err) {
+          alert('❌ Network error. Please try again.');
+        }
+      });
+    });
   </script>
 </body>
 </html>
