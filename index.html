@@ -3,144 +3,171 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Earn USDT effortlessly inside Telegram. Pre-register now for early access & bonus rewards.">
   <title>Total USDT 💲</title>
-  <link rel="stylesheet" href="style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0c1a;
+      color: white;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .page {
+      display: none;
+      padding: 2rem;
+      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .page.active { display: flex; }
+    h1 { font-size: 2.2rem; margin-bottom: 1.2rem; color: #b9f6ca; }
+    h2 { font-size: 1.6rem; margin: 1.2rem 0; color: #ffea00; }
+    p { margin: 1rem 0; font-size: 1.1rem; color: #e0e0ff; }
+    input[type="email"] {
+      width: 100%;
+      max-width: 320px;
+      padding: 0.8rem;
+      margin: 1rem auto;
+      border-radius: 8px;
+      border: 1px solid #555;
+      background: rgba(20,15,35,0.7);
+      color: white;
+      font-size: 1rem;
+    }
+    button {
+      background: linear-gradient(90deg, #00c853, #ffea00);
+      color: #0d0a1a;
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    #popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    #popup-content {
+      background: #1a142a;
+      padding: 2rem;
+      border-radius: 16px;
+      text-align: center;
+      max-width: 90%;
+    }
+  </style>
 </head>
 <body>
-  <!-- Background particles -->
-  <canvas id="bg-particles"></canvas>
-
-  <!-- Main content (hidden by default until Telegram is confirmed) -->
-  <div id="intro" style="display: none;">
-    <section class="page" id="page1">
-      <h1>Total USDT 💲</h1>
-      <p>Earn USDT effortlessly while enjoying Telegram.</p>
-      <button class="scroll-btn" data-next="2">Next</button>
-    </section>
-
-    <section class="page" style="display: none;" id="page2">
-      <h2>🎯 Mission</h2>
-      <p>Empowering Telegram users globally to earn rewards through fun, engagement, and opportunities.</p>
-      <button class="scroll-btn" data-next="3">Next</button>
-    </section>
-
-    <section class="page" style="display: none;" id="page3">
-      <h2>💰 How It Works</h2>
-      <div class="cards">
-        <div class="card">
-          <h3>Earn Points</h3>
-          <p>Join challenges, games, and tasks to earn points daily.</p>
-        </div>
-        <div class="card">
-          <h3>Convert to USDT</h3>
-          <p>Redeem your points securely into your USDT wallet.</p>
-        </div>
-        <div class="card">
-          <h3>Instant Rewards</h3>
-          <p>Withdraw anytime, anywhere — no waiting, no limits!</p>
-        </div>
-      </div>
-      <button class="scroll-btn" data-next="4">Next</button>
-    </section>
-
-    <section class="page" style="display: none;" id="page4">
-      <h2>🚀 Join the Future of Earning</h2>
-      <p>Pre-register now to secure your early access and bonus rewards.</p>
-      <form id="enroll-form">
-        <input type="email" id="email" placeholder="Your email (for updates)" required>
-        <button type="submit">Pre-Enroll Now</button>
-      </form>
-      <p id="status"></p>
-    </section>
+  <!-- Page 1 -->
+  <div class="page active" id="page1">
+    <h1>Total USDT 💲</h1>
+    <p>Earn USDT effortlessly while enjoying Telegram.</p>
+    <button onclick="goTo(2)">Next</button>
   </div>
 
-  <!-- Shown ONLY if NOT in Telegram -->
-  <div id="outside-telegram" style="display: none; text-align: center; padding: 2rem; background: rgba(15,12,26,0.9); border-radius: 16px; max-width: 500px; margin: 2rem auto; border: 1px solid rgba(224,64,251,0.3);">
-    <h2>✨ Welcome, Future Earner!</h2>
-    <p>Total USDT works inside <strong>Telegram</strong>.</p>
-    <p>Open this link in Telegram to join:</p>
-    <p><strong>@TotalUSDTbot</strong></p>
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://t.me/TotalUSDTbot" alt="QR to TotalUSDTbot" style="width:180px; margin:1rem 0;">
-    <p>Or tap the link above on your phone!</p>
+  <!-- Page 2 -->
+  <div class="page" id="page2">
+    <h2>🎯 Mission</h2>
+    <p>Empowering Telegram users globally to earn rewards through fun, engagement, and opportunities.</p>
+    <button onclick="goTo(3)">Next</button>
   </div>
 
-  <!-- Load Telegram script first -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="particles.js"></script>
+  <!-- Page 3 -->
+  <div class="page" id="page3">
+    <h2>💰 How It Works</h2>
+    <p><strong>Earn Points</strong> → <strong>Convert to USDT</strong> → <strong>Withdraw Instantly</strong></p>
+    <button onclick="goTo(4)">Next</button>
+  </div>
 
-<script>
-  // Wait a heartbeat for everything to load
-  setTimeout(() => {
-    // 🔥 Bulletproof Telegram detection
-    const urlParams = new URLSearchParams(window.location.search);
-    const isInTelegram = (
-      typeof window.Telegram !== 'undefined' ||
-      urlParams.has('tgWebAppData') ||
-      window.location.href.includes('tgWebApp')
-    );
+  <!-- Page 4 (Final) -->
+  <div class="page" id="page4">
+    <h2>🚀 Join Early Access</h2>
+    <p>Pre-register to secure bonus rewards.</p>
+    <form id="enroll-form">
+      <input type="email" id="email" placeholder="Your email" required>
+      <button type="submit">Pre-Enroll</button>
+    </form>
+  </div>
 
-    if (isInTelegram) {
-      // Hide outside view, show main content
-      document.getElementById('outside-telegram')?.style.setProperty('display', 'none', 'important');
-      document.getElementById('intro').style.display = 'block';
-      
-      // Initialize Telegram WebApp
-      const tg = window.Telegram?.WebApp || {};
-      if (tg.initData) {
-        tg.expand?.();
-        tg.ready?.();
+  <!-- Success Popup -->
+  <div id="popup">
+    <div id="popup-content">
+      <h2 id="popup-title">✅ You're In!</h2>
+      <p id="popup-message">Loading...</p>
+      <button onclick="closePopup()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // Simple page navigation
+    function goTo(pageNum) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(`page${pageNum}`).classList.add('active');
+    }
+
+    // Close popup
+    function closePopup() {
+      document.getElementById('popup').style.display = 'none';
+    }
+
+    // Handle form submission
+    document.getElementById('enroll-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const tg = window.Telegram?.WebApp;
+
+      if (!tg || !tg.initDataUnsafe?.user) {
+        alert('Please open this app inside Telegram.');
+        return;
       }
 
-      // Show first page
-      document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-      document.getElementById('page1').style.display = 'block';
+      const user = tg.initDataUnsafe.user;
+      const username = user.username ? `@${user.username}` : user.first_name || 'friend';
 
-      // Form & navigation (same as before)
-      document.getElementById('enroll-form')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value.trim();
-        const statusEl = document.getElementById('status');
-        statusEl.textContent = 'Registering...';
-        statusEl.style.color = '#37aee2';
-
-        try {
-          const response = await fetch('https://tusdt-worker.macrotiser-pk.workers.dev/auth', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ...(tg.initDataUnsafe?.user || {}),
-              email: email
-            })
-          });
-
-          const result = await response.json();
-          statusEl.textContent = result.success 
-            ? '✅ Success! You’re pre-registered. Early access coming soon!' 
-            : '⚠️ ' + (result.error || 'Something went wrong.');
-          statusEl.style.color = result.success ? 'green' : 'orange';
-          if (result.success) document.querySelector('#enroll-form button').disabled = true;
-        } catch {
-          statusEl.textContent = '❌ Network error. Please try again.';
-          statusEl.style.color = 'red';
-        }
-      });
-
-      document.querySelectorAll('.scroll-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const next = btn.dataset.next;
-          document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-          document.getElementById(`page${next}`)?.style.display = 'block';
+      try {
+        const res = await fetch('https://tusdt-worker.macrotiser-pk.workers.dev/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            telegram_id: user.id,
+            username: user.username,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: email
+          })
         });
-      });
 
-    } else {
-      // Definitely outside Telegram → show QR
-      document.getElementById('intro').style.display = 'none';
-      document.getElementById('outside-telegram').style.display = 'block';
-      document.body.style.backgroundColor = '#0f0c1a';
+        const data = await res.json();
+
+        if (data.success) {
+          const msg = data.existing 
+            ? `✅ ${username}, you're already enrolled! You'll get updates on Telegram + email soon.`
+            : `✅ ${username}, you're enrolled! You'll get a Telegram message + email soon.`;
+          
+          document.getElementById('popup-message').textContent = msg;
+          document.getElementById('popup').style.display = 'flex';
+        } else {
+          alert('⚠️ ' + (data.error || 'Something went wrong.'));
+        }
+      } catch (err) {
+        alert('❌ Network error. Please try again.');
+      }
+    });
+
+    // Expand Telegram WebApp
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.expand();
     }
-  }, 150);
-</script>
+  </script>
 </body>
 </html>
