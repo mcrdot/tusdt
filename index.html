@@ -6,14 +6,31 @@
   <title>Total USDT 💲</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* Combined styles from style.css and inline styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #0f0c1a;
       color: white;
       min-height: 100vh;
       overflow-x: hidden;
+      position: relative;
     }
+
+    #bg-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
     .page {
       display: none;
       padding: 2rem;
@@ -21,11 +38,38 @@
       min-height: 100vh;
       flex-direction: column;
       justify-content: center;
+      max-width: 800px;
+      margin: 0 auto;
+      opacity: 1;
+      transition: opacity 0.4s ease;
     }
-    .page.active { display: flex; }
-    h1 { font-size: 2.2rem; margin-bottom: 1.2rem; color: #b9f6ca; }
-    h2 { font-size: 1.6rem; margin: 1.2rem 0; color: #ffea00; }
-    p { margin: 1rem 0; font-size: 1.1rem; color: #e0e0ff; }
+
+    .page.active {
+      display: flex;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 1.2rem;
+      background: linear-gradient(90deg, #b9f6ca, #ffea00, #e040fb);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 10px rgba(185, 246, 202, 0.2);
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      margin: 1.2rem 0;
+      color: #ffea00;
+    }
+
+    p {
+      margin: 1rem 0;
+      font-size: 1.1rem;
+      color: #e0e0ff;
+    }
+
     input[type="email"] {
       width: 100%;
       max-width: 320px;
@@ -37,6 +81,7 @@
       color: white;
       font-size: 1rem;
     }
+
     button {
       background: linear-gradient(90deg, #00c853, #ffea00);
       color: #0d0a1a;
@@ -46,7 +91,14 @@
       font-weight: bold;
       cursor: pointer;
       margin-top: 1rem;
+      transition: all 0.3s ease;
     }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(185, 246, 202, 0.6);
+    }
+
     #popup {
       position: fixed;
       top: 0; left: 0;
@@ -57,16 +109,66 @@
       align-items: center;
       z-index: 100;
     }
+
     #popup-content {
       background: #1a142a;
       padding: 2rem;
       border-radius: 16px;
       text-align: center;
       max-width: 90%;
+      border: 1px solid rgba(224, 64, 251, 0.3);
+    }
+
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.2rem;
+      margin: 2rem 0;
+    }
+
+    .card {
+      background: rgba(30, 25, 50, 0.6);
+      border-radius: 12px;
+      padding: 1.2rem;
+      width: 220px;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(185, 246, 202, 0.15);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(224, 64, 251, 0.4);
+    }
+
+    #status {
+      margin-top: 1rem;
+      min-height: 1.5rem;
+      font-weight: 500;
+    }
+
+    /* Outside Telegram */
+    #outside-telegram {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+      background: rgba(15, 12, 26, 0.9);
+      border-radius: 16px;
+      max-width: 500px;
+      margin: 2rem auto;
+      border: 1px solid rgba(224, 64, 251, 0.3);
+    }
+
+    .hidden {
+      display: none !important;
     }
   </style>
 </head>
 <body>
+  <!-- Particles Canvas -->
+  <canvas id="bg-particles"></canvas>
+
   <!-- Page 1 -->
   <div class="page active" id="page1">
     <h1>Total USDT 💲</h1>
@@ -98,6 +200,13 @@
     </form>
   </div>
 
+  <!-- Outside Telegram Warning -->
+  <div id="outside-telegram">
+    <h2>⚠️ Open in Telegram</h2>
+    <p>This app must be opened from within Telegram.</p>
+    <p>Please use the link in your Telegram app.</p>
+  </div>
+
   <!-- Success Popup -->
   <div id="popup">
     <div id="popup-content">
@@ -118,12 +227,92 @@
       document.getElementById('popup').style.display = 'none';
     }
 
+    // Particles animation (from particles.js)
+    (() => {
+      const canvas = document.getElementById('bg-particles');
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      const particleCount = 60;
+      const colors = [
+        '#b9f6ca', // fluorescent green
+        '#ffea00', // yellow
+        '#e040fb'  // purple
+      ];
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+
+      class Particle {
+        constructor() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 3 + 1;
+          this.speedX = Math.random() * 1 - 0.5;
+          this.speedY = Math.random() * 1 - 0.5;
+          this.color = colors[Math.floor(Math.random() * colors.length)];
+          this.opacity = Math.random() * 0.5 + 0.1;
+        }
+
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          if (this.x > canvas.width || this.x < 0) this.speedX = -this.speedX;
+          if (this.y > canvas.height || this.y < 0) this.speedY = -this.speedY;
+        }
+
+        draw() {
+          ctx.fillStyle = this.color;
+          ctx.globalAlpha = this.opacity;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      function init() {
+        resize();
+        particles = [];
+        for (let i = 0; i < particleCount; i++) {
+          particles.push(new Particle());
+        }
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(15, 12, 26, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+          p.update();
+          p.draw();
+        });
+
+        requestAnimationFrame(animate);
+      }
+
+      window.addEventListener('resize', init);
+      init();
+      animate();
+    })();
+
     // Telegram + Worker integration
     document.addEventListener('DOMContentLoaded', () => {
       const tg = window.Telegram?.WebApp;
+      
+      // Check if running inside Telegram WebApp
       if (tg) {
         tg.expand();
         tg.ready();
+        document.getElementById('outside-telegram').style.display = 'none';
+      } else {
+        // Show warning if not in Telegram
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('outside-telegram').style.display = 'block';
       }
 
       document.getElementById('enroll-form')?.addEventListener('submit', async (e) => {
@@ -131,7 +320,9 @@
         const email = document.getElementById('email').value.trim();
 
         if (!tg || !tg.initDataUnsafe?.user) {
-          alert('Please open this app inside Telegram.');
+          document.getElementById('popup-title').textContent = '⚠️ Error';
+          document.getElementById('popup-message').textContent = 'Please open this app inside Telegram.';
+          document.getElementById('popup').style.display = 'flex';
           return;
         }
 
@@ -147,24 +338,30 @@
               username: user.username,
               first_name: user.first_name,
               last_name: user.last_name,
-              email: email
+              email: email,
+              initData: tg.initData // Send the full initData for verification
             })
           });
 
           const data = await response.json();
 
           if (data.success) {
+            document.getElementById('popup-title').textContent = '✅ You\'re In!';
             const msg = data.existing 
-              ? `✅ ${username}, you're already enrolled! You'll get updates on Telegram + email soon.`
-              : `✅ ${username}, you're enrolled! You'll get a Telegram message + email soon.`;
+              ? `${username}, you're already enrolled! You'll get updates on Telegram + email soon.`
+              : `${username}, you're enrolled! You'll get a Telegram message + email soon.`;
             
             document.getElementById('popup-message').textContent = msg;
             document.getElementById('popup').style.display = 'flex';
           } else {
-            alert('⚠️ ' + (data.error || 'Something went wrong.'));
+            document.getElementById('popup-title').textContent = '⚠️ Error';
+            document.getElementById('popup-message').textContent = data.error || 'Something went wrong. Please try again.';
+            document.getElementById('popup').style.display = 'flex';
           }
         } catch (err) {
-          alert('❌ Network error. Please try again.');
+          document.getElementById('popup-title').textContent = '❌ Network Error';
+          document.getElementById('popup-message').textContent = 'Connection failed. Please check your internet and try again.';
+          document.getElementById('popup').style.display = 'flex';
         }
       });
     });

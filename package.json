@@ -5,5 +5,8 @@
   "private": true,
   "scripts": {
     "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.76.1"
   }
 }
