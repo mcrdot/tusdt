@@ -1,10 +1,10 @@
 // tusdt-worker.js - Cloudflare Worker for Total USDT Telegram Mini App
-import { createClient } from '@supabase/supabase-js'
+// Using Supabase REST API directly - NO npm/wrangler needed!
 
 // Environment variables will be injected by Cloudflare Workers
 // Make sure to set these in your Cloudflare dashboard:
-// - SUPABASE_URL: Your Supabase project URL
-// - SUPABASE_KEY: Your Supabase service role key
+// - SUPABASE_URL: Your Supabase project URL (e.g., https://xxxxx.supabase.co)
+// - SUPABASE_KEY: Your Supabase service role key or anon key
 // - TELEGRAM_BOT_TOKEN: Your Telegram bot token
 // - TELEGRAM_BOT_USERNAME: Your Telegram bot username (without @)
 
@@ -29,11 +29,103 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    // Initialize Supabase client
-    const supabase = createClient(
-      env.SUPABASE_URL,
-      env.SUPABASE_KEY
-    );
+    // Supabase REST API helper
+    const supabase = {
+      from: (table) => ({
+        select: (columns = '*') => ({
+          eq: (column, value) => ({
+            single: async () => {
+              const response = await fetch(
+                `${env.SUPABASE_URL}/rest/v1/${table}?${column}=eq.${value}&select=${columns}`,
+                {
+                  headers: {
+                    'apikey': env.SUPABASE_KEY,
+                    'Authorization': `Bearer ${env.SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                  }
+                }
+              );
+              const data = await response.json();
+              if (!response.ok) {
+                return { data: null, error: data };
+              }
+              if (!data || data.length === 0) {
+                return { data: null, error: { code: 'PGRST116', message: 'No rows returned' } };
+              }
+              return { data: data[0], error: null };
+            }
+          })
+        }),
+        insert: (records) => ({
+          select: () => ({
+            single: async () => {
+              const response = await fetch(
+                `${env.SUPABASE_URL}/rest/v1/${table}`,
+                {
+                  method: 'POST',
+                  headers: {
+                    'apikey': env.SUPABASE_KEY,
+                    'Authorization': `Bearer ${env.SUPABASE_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                  },
+                  body: JSON.stringify(records[0])
+                }
+              );
+              const data = await response.json();
+              if (!response.ok) {
+                return { data: null, error: data };
+              }
+              return { data: data[0], error: null };
+            }
+          }),
+          exec: async () => {
+            const response = await fetch(
+              `${env.SUPABASE_URL}/rest/v1/${table}`,
+              {
+                method: 'POST',
+                headers: {
+                  'apikey': env.SUPABASE_KEY,
+                  'Authorization': `Bearer ${env.SUPABASE_KEY}`,
+                  'Content-Type': 'application/json',
+                  'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify(records[0])
+              }
+            );
+            if (!response.ok) {
+              const error = await response.json();
+              return { data: null, error };
+            }
+            return { data: null, error: null };
+          }
+        }),
+        update: (updates) => ({
+          eq: (column, value) => ({
+            exec: async () => {
+              const response = await fetch(
+                `${env.SUPABASE_URL}/rest/v1/${table}?${column}=eq.${value}`,
+                {
+                  method: 'PATCH',
+                  headers: {
+                    'apikey': env.SUPABASE_KEY,
+                    'Authorization': `Bearer ${env.SUPABASE_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                  },
+                  body: JSON.stringify(updates)
+                }
+              );
+              if (!response.ok) {
+                const error = await response.json();
+                return { data: null, error };
+              }
+              return { data: null, error: null };
+            }
+          })
+        })
+      })
+    };
 
     // Route handling
     if (path === '/auth' && request.method === 'POST') {
@@ -63,7 +155,6 @@ export default {
           }
         } else {
           // For development purposes, allow without verification
-          // In production, you should always verify
           isValidTelegramUser = true;
         }
 
@@ -74,7 +165,7 @@ export default {
           .eq('telegram_id', telegram_id)
           .single();
 
-        if (queryError && queryError.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
+        if (queryError && queryError.code !== 'PGRST116') {
           console.error('Database query error:', queryError);
           return new Response(
             JSON.stringify({ success: false, error: 'Database error' }),
@@ -83,7 +174,7 @@ export default {
         }
 
         // Store the Telegram session data if initData is provided
-        if (initData && isValidTelegramUser) {
+        if (initData && isValidTelegramUser && existingUser) {
           const parsedInitData = parseInitData(initData);
           const authDate = parsedInitData.auth_date;
           const hash = parsedInitData.hash;
@@ -91,19 +182,17 @@ export default {
           // Calculate expiration (24 hours from auth_date)
           const expiresAt = new Date((authDate * 1000) + (24 * 60 * 60 * 1000));
           
-          if (existingUser) {
-            // Store session for existing user
-            await supabase
-              .from('telegram_sessions')
-              .insert([{
-                user_id: existingUser.id,
-                telegram_auth_date: authDate,
-                telegram_hash: hash,
-                telegram_init_data: initData,
-                is_valid: true,
-                expires_at: expiresAt.toISOString()
-              }]);
-          }
+          await supabase
+            .from('telegram_sessions')
+            .insert([{
+              user_id: existingUser.id,
+              telegram_auth_date: authDate,
+              telegram_hash: hash,
+              telegram_init_data: initData,
+              is_valid: true,
+              expires_at: expiresAt.toISOString()
+            }])
+            .exec();
         }
 
         // If user exists, update their record
@@ -117,7 +206,8 @@ export default {
               last_name: last_name || existingUser.last_name,
               updated_at: new Date().toISOString()
             })
-            .eq('telegram_id', telegram_id);
+            .eq('telegram_id', telegram_id)
+            .exec();
 
           if (updateError) {
             console.error('Database update error:', updateError);
@@ -135,7 +225,8 @@ export default {
               activity_type: 'login',
               points_earned: 0,
               metadata: { source: 'web_app' }
-            }]);
+            }])
+            .exec();
 
           return new Response(
             JSON.stringify({ success: true, existing: true }),
@@ -186,7 +277,8 @@ export default {
               telegram_init_data: initData,
               is_valid: true,
               expires_at: expiresAt.toISOString()
-            }]);
+            }])
+            .exec();
             
           // Log user activity for new registration
           await supabase
@@ -194,9 +286,10 @@ export default {
             .insert([{
               user_id: newUser.id,
               activity_type: 'registration',
-              points_earned: 100, // Bonus points for registration
+              points_earned: 100,
               metadata: { source: 'web_app' }
-            }]);
+            }])
+            .exec();
         }
 
         // Optional: Send a message to the user via Telegram Bot API
@@ -213,7 +306,6 @@ export default {
             });
           } catch (telegramError) {
             console.error('Failed to send Telegram message:', telegramError);
-            // Continue execution even if Telegram message fails
           }
         }
 
@@ -246,7 +338,7 @@ export default {
 
         const { data: user, error } = await supabase
           .from('users')
-          .select('id, points, usdt_balance')
+          .select('id,points,usdt_balance')
           .eq('telegram_id', telegram_id)
           .single();
 
