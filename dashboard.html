@@ -375,10 +375,42 @@
       }
     }
 
+    // Watch ads
+    function watchAds() {
+      window.location.href = 'earn-ads.html';
+    }
+
     // Daily claim
-    function claimDaily() {
-      tg.showAlert('Daily check-in claimed! +5 points 🎉');
-      // TODO: Implement actual claim logic with worker
+    async function claimDaily() {
+      if (!userData) {
+        tg.showAlert('User data not loaded');
+        return;
+      }
+
+      try {
+        const response = await fetch('https://tusdt-worker.macrotiser-pk.workers.dev/daily-checkin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            telegram_id: userData.id
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          tg.showAlert('Daily check-in claimed! +5 points 🎉');
+          // Update points display
+          document.getElementById('points').textContent = data.newPoints;
+        } else if (data.alreadyClaimed) {
+          tg.showAlert('You already claimed today! Come back tomorrow 😊');
+        } else {
+          tg.showAlert('Failed to claim. Please try again.');
+        }
+      } catch (error) {
+        console.error('Claim error:', error);
+        tg.showAlert('Network error. Please try again.');
+      }
     }
 
     // Join channel
