@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watch Ads & Earn - Total USDT💲</title>
+  <script src="https://cdn.jsdelivr.net/npm/@twa-dev/sdk@7.10.1/dist/telegram-web-apps.js"></script>
+  
+  <!-- Monetag Ad Script -->
+  <script src='//libtl.com/sdk.js' data-zone='10131083' data-sdk='show_10131083'></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f0c1a 0%, #1a1333 100%);
+      color: white;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      padding: 1.5rem 0;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      background: linear-gradient(90deg, #b9f6ca, #ffea00);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .stats-box {
+      background: rgba(185, 246, 202, 0.1);
+      border: 1px solid rgba(185, 246, 202, 0.3);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .stat-item {
+      background: rgba(20, 15, 35, 0.6);
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      color: #ffea00;
+      font-weight: bold;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #b9f6ca;
+      margin-top: 0.3rem;
+    }
+
+    .ad-section {
+      background: rgba(30, 25, 50, 0.6);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(185, 246, 202, 0.15);
+      text-align: center;
+    }
+
+    .reward-display {
+      font-size: 2rem;
+      color: #ffea00;
+      margin: 1rem 0;
+      font-weight: bold;
+    }
+
+    .ad-container {
+      min-height: 250px;
+      background: rgba(20, 15, 35, 0.8);
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed rgba(185, 246, 202, 0.3);
+    }
+
+    .btn {
+      background: linear-gradient(90deg, #00c853, #ffea00);
+      color: #0d0a1a;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      width: 100%;
+      margin-top: 1rem;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(185, 246, 202, 0.6);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .timer {
+      font-size: 1.5rem;
+      color: #e040fb;
+      margin: 1rem 0;
+      font-weight: bold;
+    }
+
+    .info-box {
+      background: rgba(224, 64, 251, 0.1);
+      border: 1px solid rgba(224, 64, 251, 0.3);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #e0e0ff;
+    }
+
+    .success-message {
+      background: rgba(0, 200, 83, 0.2);
+      border: 1px solid rgba(0, 200, 83, 0.5);
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 1rem 0;
+      color: #b9f6ca;
+      text-align: center;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .back-btn {
+      background: linear-gradient(90deg, #e040fb, #b9f6ca);
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📺 Watch Ads & Earn</h1>
+      <p style="color: #b9f6ca;">Earn points by watching ads!</p>
+    </div>
+
+    <!-- Stats Box -->
+    <div class="stats-box">
+      <h3 style="color: #ffea00; margin-bottom: 1rem;">Today's Progress</h3>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value" id="ads-watched">0</div>
+          <div class="stat-label">Ads Watched</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="ads-remaining">5</div>
+          <div class="stat-label">Remaining</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="points-earned">0</div>
+          <div class="stat-label">Points Earned</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ad Viewing Section -->
+    <div class="ad-section">
+      <h2 style="color: #ffea00; margin-bottom: 1rem;">💰 Earn Rewards</h2>
+      <div class="reward-display">+10 Points per Ad</div>
+      
+      <div id="success-msg" style="display: none;" class="success-message">
+        ✅ Ad watched successfully! +10 points earned!
+      </div>
+
+      <div id="timer-section" style="display: none;">
+        <p style="color: #b9f6ca; margin-bottom: 0.5rem;">Next ad available in:</p>
+        <div class="timer" id="countdown">05:00</div>
+      </div>
+
+      <!-- Ad Container -->
+      <div class="ad-container" id="ad-container">
+        <p style="color: #b9f6ca;">Ad will appear here</p>
+      </div>
+
+      <button class="btn" id="watch-btn" onclick="watchAd()">
+        🎬 Watch Ad & Earn 10 Points
+      </button>
+
+      <div class="info-box">
+        ℹ️ <strong>Info:</strong> You can watch up to 5 ads per hour. Each ad rewards you with 10 points!
+      </div>
+    </div>
+
+    <button class="btn back-btn" onclick="goBack()">
+      ← Back to Dashboard
+    </button>
+  </div>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+    
+    // Configuration
+    const MAX_ADS_PER_HOUR = 5;
+    const POINTS_PER_AD = 10;
+    const COOLDOWN_MINUTES = 5; // 5 minutes between ads
+    
+    // User data
+    let userData = {
+      adsWatched: 0,
+      lastAdTime: null,
+      totalPointsEarned: 0,
+      telegram_id: null
+    };
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      if (tg) {
+        tg.ready();
+        tg.expand();
+        
+        if (tg.initDataUnsafe?.user) {
+          userData.telegram_id = tg.initDataUnsafe.user.id;
+          loadUserAdData();
+        }
+      }
+      
+      updateUI();
+    });
+
+    // Load user ad data from localStorage
+    function loadUserAdData() {
+      const savedData = localStorage.getItem(`ad_data_${userData.telegram_id}`);
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        
+        // Reset if it's a new hour
+        const lastHour = new Date(parsed.lastHourReset).getHours();
+        const currentHour = new Date().getHours();
+        
+        if (lastHour !== currentHour) {
+          userData.adsWatched = 0;
+          userData.lastHourReset = new Date().toISOString();
+        } else {
+          userData.adsWatched = parsed.adsWatched || 0;
+          userData.lastAdTime = parsed.lastAdTime;
+          userData.totalPointsEarned = parsed.totalPointsEarned || 0;
+        }
+      } else {
+        userData.lastHourReset = new Date().toISOString();
+      }
+      
+      saveUserAdData();
+    }
+
+    // Save user ad data
+    function saveUserAdData() {
+      localStorage.setItem(`ad_data_${userData.telegram_id}`, JSON.stringify(userData));
+    }
+
+    // Update UI
+    function updateUI() {
+      document.getElementById('ads-watched').textContent = userData.adsWatched;
+      document.getElementById('ads-remaining').textContent = Math.max(0, MAX_ADS_PER_HOUR - userData.adsWatched);
+      document.getElementById('points-earned').textContent = userData.totalPointsEarned;
+      
+      const canWatch = checkCanWatchAd();
+      document.getElementById('watch-btn').disabled = !canWatch;
+      
+      if (!canWatch) {
+        const timeLeft = getTimeUntilNextAd();
+        if (timeLeft > 0) {
+          showCountdown(timeLeft);
+        } else if (userData.adsWatched >= MAX_ADS_PER_HOUR) {
+          document.getElementById('watch-btn').textContent = '⏰ Hourly Limit Reached';
+        }
+      }
+    }
+
+    // Check if user can watch ad
+    function checkCanWatchAd() {
+      // Check hourly limit
+      if (userData.adsWatched >= MAX_ADS_PER_HOUR) {
+        return false;
+      }
+      
+      // Check cooldown
+      if (userData.lastAdTime) {
+        const timeSince = Date.now() - new Date(userData.lastAdTime).getTime();
+        const cooldownMs = COOLDOWN_MINUTES * 60 * 1000;
+        if (timeSince < cooldownMs) {
+          return false;
+        }
+      }
+      
+      return true;
+    }
+
+    // Get time until next ad
+    function getTimeUntilNextAd() {
+      if (!userData.lastAdTime) return 0;
+      
+      const timeSince = Date.now() - new Date(userData.lastAdTime).getTime();
+      const cooldownMs = COOLDOWN_MINUTES * 60 * 1000;
+      return Math.max(0, cooldownMs - timeSince);
+    }
+
+    // Show countdown
+    function showCountdown(timeLeft) {
+      document.getElementById('timer-section').style.display = 'block';
+      
+      const interval = setInterval(() => {
+        timeLeft -= 1000;
+        
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          document.getElementById('timer-section').style.display = 'none';
+          document.getElementById('watch-btn').disabled = false;
+          document.getElementById('watch-btn').textContent = '🎬 Watch Ad & Earn 10 Points';
+          return;
+        }
+        
+        const minutes = Math.floor(timeLeft / 60000);
+        const seconds = Math.floor((timeLeft % 60000) / 1000);
+        document.getElementById('countdown').textContent = 
+          `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    // Watch ad
+    async function watchAd() {
+      if (!checkCanWatchAd()) {
+        tg.showAlert('Please wait before watching another ad!');
+        return;
+      }
+
+      // Disable button
+      document.getElementById('watch-btn').disabled = true;
+      document.getElementById('watch-btn').textContent = '⏳ Loading Ad...';
+
+      // Simulate ad loading and viewing
+      // In production, integrate with your actual ad network
+      setTimeout(async () => {
+        // Ad "watched" - Update local data
+        userData.adsWatched++;
+        userData.lastAdTime = new Date().toISOString();
+        userData.totalPointsEarned += POINTS_PER_AD;
+        saveUserAdData();
+
+        // Show success message
+        document.getElementById('success-msg').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('success-msg').style.display = 'none';
+        }, 3000);
+
+        // Update backend (reward user with points)
+        try {
+          await fetch('https://tusdt-worker.macrotiser-pk.workers.dev/reward-ad', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              telegram_id: userData.telegram_id,
+              points: POINTS_PER_AD
+            })
+          });
+        } catch (error) {
+          console.error('Failed to update backend:', error);
+        }
+
+        // Update UI
+        document.getElementById('watch-btn').textContent = '🎬 Watch Ad & Earn 10 Points';
+        updateUI();
+
+        // Show alert
+        tg.showAlert(`✅ You earned ${POINTS_PER_AD} points!`);
+      }, 2000); // Simulate 2 second ad
+    }
+
+    // Go back to dashboard
+    function goBack() {
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>
